@@ -1,0 +1,27 @@
+server:
+  port: 80
+spring:
+  main:
+    banner-mode: off # 关闭SpringBoot启动图标(banner)
+  application:
+    #应用的名称，可选
+    name: reggie
+  datasource:
+    druid:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      url: jdbc:mysql://localhost:3306/reggie?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
+      username: root
+      password: 232104
+mybatis-plus:
+  configuration:
+    #在映射实体或者属性时，将数据库中表名和字段名中的下划线去掉，按照驼峰命名法映射
+    #注意这种方法
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      id-type: ASSIGN_ID
+    banner: off # 关闭mybatisplus启动图标
+reggie:
+  path: D:\haoyu\
+#  特别注意这里的路径后面要加\
