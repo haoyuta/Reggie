@@ -11,6 +11,9 @@ import com.haoyu.reggiedemo.service.SetmealService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +35,10 @@ public class SetmealController {
     @Autowired
     private SetmealDishService setmealDishService;
 
+    //缓存
+    @Autowired
+    private CacheManager cacheManager;
+
     /**
      * 添加套餐信息，同时保存对应的套餐菜品数据
      *
@@ -39,7 +46,9 @@ public class SetmealController {
      * @return
      */
     @PostMapping
-    private R<String> add(@RequestBody SetmealDto setmealDto) {
+    //添加套餐信息成功后删除相应的缓存数据
+    @CacheEvict(value = "setmealCache",key = "#setmealDto.categoryId+'_1'")
+    public R<String> add(@RequestBody SetmealDto setmealDto) {
         log.info("套餐信息：{}", setmealDto);
 
         setmealService.saveWithSetmealDish(setmealDto);
@@ -116,6 +125,8 @@ public class SetmealController {
      * @return
      */
     @DeleteMapping
+    //删除套餐信息成功后删除setmealCache所有缓存数据
+    @CacheEvict(value = "setmealCache",allEntries = true)
     public R<String> deleteSetmeal(@RequestParam List<Long> ids) {
         //调用自定义方法
         setmealService.deleteByids(ids);
@@ -130,6 +141,8 @@ public class SetmealController {
      * @return
      */
     @PostMapping("/status/{status}")
+    //更改status成功后删除setmealCache所有缓存数据
+    @CacheEvict(value = "setmealCache",allEntries = true)
     public R<String> changeStatus(@PathVariable int status, @RequestParam List<Long> ids) {
 
         List<Setmeal> setmeals = new ArrayList<>();
@@ -152,6 +165,7 @@ public class SetmealController {
  * 移动端回显套餐信息
  */
     @GetMapping("/list")
+    @Cacheable(value = "setmealCache",key = "#setmeal.categoryId+'_'+#setmeal.status")
     public R<List<Setmeal>> list(Setmeal setmeal){
 
             //条件构造器
