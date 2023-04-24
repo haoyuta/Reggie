@@ -13,6 +13,10 @@ import com.haoyu.reggiedemo.service.DishService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
@@ -108,7 +112,7 @@ public class DishController {
      * @return
      */
     @PostMapping
-    private R<String> add(@RequestBody DishDto dishDto){
+    public R<String> add(@RequestBody DishDto dishDto){
         log.info(dishDto.toString());
 
         dishService.saveWithFlavor(dishDto);
@@ -254,7 +258,7 @@ public class DishController {
         List<DishDto> dishDtoList=null;
 
         //动态设置key的值
-        String key="dish_"+dish.getCategoryId()+"_"+dish.getStatus();
+        String key="dish_"+dish.getCategoryId()+"_1";
 
         //先从Redis获取缓存数据
         dishDtoList= (List<DishDto>) redisTemplate.opsForValue().get(key);
